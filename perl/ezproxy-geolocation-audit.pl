@@ -43,10 +43,8 @@ DATA: while ( <$audit_fh> ) {
 			
 			# Cookie exists in blacklist
 			my $csv = Text::CSV_XS->new ({ binary => 1, auto_diag => 1, eol => $/ });
-			my @rows;
 			open my $blacklist_fh, '<', $blacklist;
 			if ($blacklist_fh) {
-				# Read/parse CSV
 				while (my $row = $csv->getline($blacklist_fh)) {
 					# $row indeces 0, 1 and 2 map to ip, country, and cookie, respectively.
 					next DATA if ($cookie eq $row->[2]);	
