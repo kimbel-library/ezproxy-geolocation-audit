@@ -2,7 +2,7 @@
 written by Justin Beerley
 
 ## Introduction
-The purpose of this script is to parse EZProxy audit log files, query the geolocation for successful logins, and report users accessing EZProxy from outside the USA.
+The purpose of this script is to parse EZProxy audit log files, query the geolocation for successful logins, and generate a report of users accessing EZProxy from outside the USA.
 
 ## Requirements
 Perl, MaxMind::DB::Reader or MaxMind::DB::Reader::XS, Text::CSV or Text::CSV_XS
