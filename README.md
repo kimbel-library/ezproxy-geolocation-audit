@@ -2,7 +2,7 @@
 written by Justin Beerley
 
 ## Introduction
-The purpose of this script is to parse EZProxy audit log files, query the geolocation for successful logins, and report the findings.
+The purpose of this script is to parse EZProxy audit log files, query the geolocation for successful logins, and report users accessing EZProxy from outside the USA.
 
 ## Requirements
 Perl, MaxMind::DB::Reader or MaxMind::DB::Reader::XS, Text::CSV or Text::CSV_XS
@@ -23,3 +23,6 @@ You'll need to set several path and filenames for the Perl script to run success
 	30: my $blacklist = "/path/to/blacklist.csv";
 
 	31: my $audit_file = "/path/to/ezproxy/audit/".(strftime "%Y%m%d", localtime).".txt";
+
+## Possible Usage
+Execute the Perl script hourly via crontab. If the alert file is non-empty, then send an alert email to the EZProxy administrator.
