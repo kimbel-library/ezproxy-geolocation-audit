@@ -10,25 +10,15 @@ use Text::CSV_XS;
 use MaxMind::DB::Reader;
 use strict;
 
-sub add_alert {
-	my $data = shift;
-	my $alert_file = "/tmp/ezproxy_audit_result";
-	open my $alert_fh, '>>', $alert_file or die "Can't open $alert_file: $!";
-	print $alert_fh join("\t",@{$data}),"\n";
-	close $alert_fh;
-}
-
-sub mmdb_query {
-	my $ip = shift;
-	my $mmdb_file = "/path/to/GeoLite2-Country.mmdb";
-	my $reader = MaxMind::DB::Reader->new( file => $mmdb_file );
-	my $record = $reader->record_for_address($ip);
-	return $record ? $record : 0;
-}
-
-# Set file path
+# Set file paths
 my $blacklist = "/path/to/blacklist.csv";
+my $alert_file = "/tmp/ezproxy_geolocation_audit_result";
 my $audit_file = "/path/to/ezproxy/audit/".(strftime "%Y%m%d", localtime).".txt";
+
+# Truncate alert
+truncate_alert($alert_file);
+
+# Open audit file
 open my $audit_fh, '<:encoding(UTF-8)', $audit_file or die "Can't open $audit_file: $!";
 
 DATA: while ( <$audit_fh> ) {
@@ -61,10 +51,34 @@ DATA: while ( <$audit_fh> ) {
 				open my $blacklist_fh, '>>', $blacklist or die "Can't open $blacklist: $!";
 				$csv->print($blacklist_fh, [$ip,$result->{registered_country}->{names}->{en},$cookie]);
 				close $blacklist_fh;
-				add_alert([$timestamp, $action, $ip, $username, $cookie, "Access from $result->{registered_country}->{names}->{en}!"]);
+				add_alert([$timestamp, $action, $ip, $username, $cookie, "Access from $result->{registered_country}->{names}->{en}!"], $alert_file);
 			}
 
 		}
 	}
 }
+
+sub truncate_alert {
+	my $alert_file = shift;
+	open my $alert_fh, '>', $alert_file or die "Can't open $alert_file: $!";
+	print $alert_fh "";
+	close $alert_fh;
+}
+
+sub add_alert {
+	my $data = shift;
+	my $alert_file = shift;
+	open my $alert_fh, '>>', $alert_file or die "Can't open $alert_file: $!";
+	print $alert_fh join("\t",@{$data}),"\n";
+	close $alert_fh;
+}
+
+sub mmdb_query {
+	my $ip = shift;
+	my $mmdb_file = "/path/to/GeoLite2-Country.mmdb";
+	my $reader = MaxMind::DB::Reader->new( file => $mmdb_file );
+	my $record = $reader->record_for_address($ip);
+	return $record ? $record : 0;
+}
+
 exit 0;
